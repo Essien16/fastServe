@@ -35,7 +35,7 @@ npm run lint
 
 # add and commit your changes
 
-git pull upstream dev
+git pull upstream master
 
 git push origin <your_branch_name>
 
