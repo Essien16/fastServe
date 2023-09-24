@@ -14,7 +14,7 @@ cd fastServe
 
 git remote add upstream https://github.com/Essien16/fastServe.git 
 
-git pull upstream dev
+git pull upstream master
 
 git checkout <your_branch_name>
 ```
