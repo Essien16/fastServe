@@ -1,8 +1,28 @@
 import * as bcrypt from 'bcrypt';
+import * as multer from 'multer';
+
+const storageOptions = multer.diskStorage({
+  destination:  (req, file, cb) => {
+    cb(null, "./src/uploads")
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
+    cb(null, uniqueSuffix + file.originalname);
+  },
+})
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
 
 export class Utils {
   //token should expire in 10mins
   public TOKEN_TIME = 60 * 10000;
+  public multer = multer({storage: storageOptions, fileFilter: fileFilter});
 
   static generateEmailVerificationToken(digit: number = 4) {
     const digits = "0123456789";
