@@ -16,11 +16,31 @@ class UserRouter {
     }
 
     getRoutes() {
-        this.router.get("/resend/verification/mail", GlobalMiddleWare.auth, UserController.resendVerificationEmail);
-        this.router.get("/login", UserValidators.login(), GlobalMiddleWare.checkError, UserController.login);
-        this.router.get("/send/reset/password/token", UserValidators.checkResetPasswordEmail(), GlobalMiddleWare.checkError, UserController.sendResetPasswordOtp);
-        this.router.get("/verify/reset/password/token", UserValidators.verifyResetPasswordToken(), GlobalMiddleWare.checkError, UserController.verifyResetPasswordToken);
-        this.router.get("/profile", GlobalMiddleWare.auth, UserController.profile);
+      //this.router.use(configureSession)
+      this.router.get(
+        "/resend/verification/mail",
+        GlobalMiddleWare.auth,
+        UserController.resendVerificationEmail
+      )
+      this.router.get(
+        "/login",
+        UserValidators.login(),
+        GlobalMiddleWare.checkError,
+        UserController.login
+      )
+      this.router.get(
+        "/send/reset/password/token",
+        UserValidators.checkResetPasswordEmail(),
+        GlobalMiddleWare.checkError,
+        UserController.sendResetPasswordOtp
+      )
+      this.router.get(
+        "/verify/reset/password/token",
+        UserValidators.verifyResetPasswordToken(),
+        GlobalMiddleWare.checkError,
+        UserController.verifyResetPasswordToken
+      )
+      this.router.get("/profile", GlobalMiddleWare.auth, UserController.profile)
     }
     postRoutes() {
         this.router.post("/signup", UserValidators.signup(), GlobalMiddleWare.checkError, UserController.signup);

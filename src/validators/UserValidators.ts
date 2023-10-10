@@ -1,36 +1,36 @@
 import { body, query } from 'express-validator';
-import { nextTick } from 'process';
-import { idText } from 'typescript';
 import User from '../models/User';
 
 export class UserValidators {
   static signup() {
     return [
-      body('name', 'Name is required').isString(),
-      body('phone', 'Phone Number is required.').isString(),
-      body('email', 'Email is required')
+      body("name", "Name is required").isString(),
+      body("phone", "Phone Number is required.").isString(),
+      body("email", "Email is required")
         .isEmail()
-        .custom((email, { req }) => User.findOne({
-          email,
-          type: 'user',
-        })
-          .then((user) => {
-            if (user) {
-              // throw new Error('User Already Exists');
-              throw 'User with email already exists';
-            } else {
-              return true;
-            }
-          })
-          .catch((e) => {
-            throw new Error(e);
-          })),
-      body('password', 'Password is required')
+        .custom((email, { req }) => {
+          const userType = req.body.type
+          if (!userType || typeof userType !== "string") {
+            throw new Error("Invalid user type provided")
+          }
+          return User.findOne({ email, type: userType })
+            .then((user) => {
+              if (user) {
+                throw new Error("User Already Exists with this email address")
+              } else {
+                return true
+              }
+            })
+            .catch((e) => {
+              throw new Error(e)
+            })
+        }), //limitation: A user can signup with an email and an admi can signup with the same email. to change that in the future, channge the query to only email.
+      body("password", "Password is required")
         .isAlphanumeric()
         .isLength({ min: 5, max: 25 })
-        .withMessage('Password is too weak'),
-      body('type', 'User role type is required').isString(),
-    ];
+        .withMessage("Password is too weak"),
+      body("type", "User role type is required").isString(),
+    ]
   }
 
   static verifyEmailOtp() {
@@ -167,7 +167,9 @@ export class UserValidators {
               throw new Error(e);
             });
         }),
-      body('password', 'Password is required').isAlphanumeric(),
+      body('password', 'Password is required').isAlphanumeric()
+      .isLength({min: 8, max: 20})
+      .withMessage('Password must be between 8-20 characters.')
     ];
   }
 }

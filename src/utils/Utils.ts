@@ -19,6 +19,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+
 export class Utils {
   //token should expire in 10mins
   public TOKEN_TIME = 60 * 10000;

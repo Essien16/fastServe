@@ -24,6 +24,8 @@ git checkout <your_branch_name>
 
 npm install
 
+create an environment folder to store your environment variables or use dotenv(tho you might have to refactor but na you sabi)
+
 npm run dev
 
 ```

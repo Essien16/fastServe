@@ -35,6 +35,11 @@ export class UserController {
         type: user.type
       };
       const jwt_token = JWT.jwtSign(payload);
+      // req.session.user = {
+      //   userId: user._id,
+      //   email: user.email,
+      //   type: user.type,
+      // }
       res.json({
         jwt_token: jwt_token,
         user: user,
@@ -252,6 +257,7 @@ export class UserController {
         type: updatedUser.type,
       };
       const token = JWT.jwtSign(payload);
+      console.log(req.session)
       res.json({
         token: token,
         user: updatedUser,
