@@ -70,9 +70,30 @@ export class RestaurantController {
   }
 
   static async getRestaurants(req, res, next) {
+    const perPage = 15;
+    const currentPage = parseInt(req.query.page) || 1
+    const previousPage = currentPage == 1 ? null : currentPage - 1
+    let nextPage = currentPage + 1
     try {
+      const restaurant_count = await Restaurant.countDocuments({ status: "active" })
+      const totalPage = Math.ceil(restaurant_count / perPage)
+      if (totalPage == 0 || totalPage == currentPage) {
+        nextPage = null
+      }
+      if (totalPage < currentPage) {
+        throw "No more Restaurants."
+      }
       const restaurants = await Restaurant.find({ status: "active" })
-      res.send(restaurants)
+                                            .skip(perPage * currentPage - perPage)
+                                            .limit(perPage)
+      res.json({
+        restaurants,
+        perPage,
+        currentPage,
+        previousPage,
+        nextPage,
+        totalPage,
+      })
     } catch (error) {
       next(error)
     }

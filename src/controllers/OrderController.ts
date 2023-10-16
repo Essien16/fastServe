@@ -92,14 +92,36 @@ export class OrderController {
 
   static async getOrders(req, res, next) {
     const user_id = req.session.user_id;
+    //for pagiantion feature
+    const perPage = 5;
+    const currentPage = parseInt(req.query.page) || 1;
+    const previousPage = currentPage == 1 ? null : currentPage - 1;
+    let nextPage = currentPage + 1;
     try {
+      const order_count = await Order.countDocuments({ user_id: user_id });
+      const totalPage = Math.ceil(order_count/perPage);
+      if (totalPage == 0 || totalPage == currentPage) {
+        nextPage = null;
+      }
+      if (totalPage < currentPage) {
+        throw "No more Orders"
+      }
       const orders = await Order.find({ user_id }, {user_id: 0, __v:0 })
+                                  .skip((perPage * currentPage) - perPage)
+                                  .limit(perPage)
                                   .sort({"created_at": -1})
                                   .populate("restaurant_id")
                                   .exec();
-      res.send(orders);
+      res.json({
+        orders,
+        perPage,
+        currentPage,
+        previousPage,
+        nextPage,
+        totalPage
+      });
     } catch (error) {
       next(error)
-    }
-  }
+    };
+  };
 }
