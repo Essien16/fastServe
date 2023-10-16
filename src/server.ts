@@ -12,6 +12,11 @@ import RestaurantRouter from "./routers/RestaurantRouter";
 import CategoryRouter from "./routers/CategoryRouter";
 import MenuRouter from "./routers/MenuRouter";
 import TableRouter from "./routers/TableRouter";
+import OrderRouter from "./routers/OrderRouter";
+import CartRouter from "./routers/CartRouter";
+import PaymentRouter from "./routers/PaymentRouter";
+import { Utils } from "./utils/Utils";
+
 
 export class Server {
   public app: express.Application = express()
@@ -24,12 +29,19 @@ export class Server {
     this.error404Handler()
     this.handleErrors()
   }
+
   setConfigs() {
-    this.connectMongoDb()
-    this.allowCors()
-    this.configureBodyParser()
-    this.configureSessions()
+    this.dotenvConfig();
+    this.connectMongoDb();
+    this.allowCors();
+    this.configureBodyParser();
+    this.configureSessions();
   }
+
+  dotenvConfig() {
+    Utils.dotenvConfig();
+  }
+
   connectMongoDb() {
     mongoose
       .connect(getEnvironmentVariables().db_url)
@@ -59,6 +71,9 @@ export class Server {
     this.app.use("/api/v1/categories", CategoryRouter)
     this.app.use("/api/v1/menu", MenuRouter)
     this.app.use("/api/v1/table", TableRouter)
+    this.app.use("/api/v1/cart", CartRouter)
+    this.app.use("/api/v1/order", OrderRouter)
+    this.app.use("/api/v1/pay", PaymentRouter)
   }
 
   error404Handler() {

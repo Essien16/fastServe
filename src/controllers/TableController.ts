@@ -27,8 +27,8 @@ export class TableController {
         table: newTable,
       };
     } catch (error) {
-      console.error('Error while creating table:', error.message || error);  // Log the error
-      throw new Error('Error occurred while creating table.');  // Throw a generic error message
+      console.error('Error while creating table:', error.message || error);  
+      throw new Error('Error occurred while creating table.');  
     }
   }
 
@@ -70,7 +70,6 @@ export class TableController {
       )
       return res.status(201).json(result)
     } catch (error) {
-      // You might want to check for different types of errors and handle them accordingly
       return next(error)
     }
   }

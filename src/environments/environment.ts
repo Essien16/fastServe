@@ -10,10 +10,6 @@ export interface Environment {
     api_key: string
     email_from: string
   }
-  gmail_auth?: {
-    user: string
-    pass: string
-  }
   mailtrap_auth?: {
     user: string
     pass: string
@@ -22,6 +18,11 @@ export interface Environment {
     cloud_name: string
     api_key: string
     api_secret: string
+  }
+  flutterwave_secret_key: {
+    public_key: string
+    secret_key: string
+    encryption_key: string
   }
 }
 

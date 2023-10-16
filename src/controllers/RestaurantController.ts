@@ -2,7 +2,6 @@ import Category from "../models/Category"
 import Restaurant from "../models/Restaurant"
 import User from "../models/User";
 import { TableController } from "../controllers/TableController";
-import { JWT } from "../utils/Jwt"
 import { NodeMailer } from "../utils/NodeMailer"
 import { Utils } from "../utils/Utils"
 import Table from "../models/Table";
