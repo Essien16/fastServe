@@ -172,4 +172,18 @@ export class UserValidators {
       .withMessage('Password must be between 8-20 characters.')
     ];
   }
+
+  static refreshToken() {
+    return [
+      body("refreshToken", "Refresh Token is required").isString()
+      .custom((refreshToken, { req }) => {
+        if (refreshToken) {
+          return true;
+        } else {
+          req.errorStatus = 403;
+          throw "Access forbidden.";
+        }
+      })
+    ]
+  }
 }

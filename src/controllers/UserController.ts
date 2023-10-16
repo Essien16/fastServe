@@ -29,19 +29,16 @@ export class UserController {
       };
       let user = await new User(data).save();
       const payload = {
-		// _id: user._id,
-        aud: user._id,
+		    // _id: user._id,
+        // aud: user._id,
         email: user.email,
         type: user.type
       };
-      const jwt_token = JWT.jwtSign(payload);
-      // req.session.user = {
-      //   userId: user._id,
-      //   email: user.email,
-      //   type: user.type,
-      // }
+      const jwt_access_token = JWT.jwtSign(payload, user._id);
+      const refresh_token = JWT.jwtSignRefreshToken(payload, user._id)
       res.json({
-        jwt_token: jwt_token,
+        jwt_token: jwt_access_token,
+        refreshToken: refresh_token,
         user: user,
       });
       //send an email to the user to verify their email
@@ -125,13 +122,16 @@ export class UserController {
     try {
       await Utils.comparePassword(data);
       const payload = {
-        aud: user._id,
+        // aud: user._id,
         email: user.email,
         type: user.type,
       }
-      const jwt_token = JWT.jwtSign(payload);
+      // console.log(user._id)
+      const jwt_access_token = JWT.jwtSign(payload, user._id);
+      const refresh_token = JWT.jwtSignRefreshToken(payload, user._id)
       res.json({
-        jwt_token: jwt_token,
+        jwt_token: jwt_access_token,
+        refreshToken: refresh_token,
         user: user,
       });
     } catch (error) {
@@ -252,14 +252,16 @@ export class UserController {
         { new: true }
       );
       const payload = {
-        aud: user.aud,
+        // aud: user.aud,
         email: updatedUser.email,
         type: updatedUser.type,
       };
-      const token = JWT.jwtSign(payload);
-      console.log(req.session)
+      const access_token = JWT.jwtSign(payload, user.aud);
+      const refresh_token = JWT.jwtSignRefreshToken(payload, user.aud)
+      //console.log(req.session)
       res.json({
-        token: token,
+        token: access_token,
+        refreshToken: refresh_token,
         user: updatedUser,
       });
       // send email to user for updated email verification
@@ -270,6 +272,33 @@ export class UserController {
       });
     } catch (error) {
       next(error);
+    }
+  }
+
+  static async getRefreshToken(req, res, next) {
+    const refreshToken = req.body.refreshToken;
+    try {
+      const decodedData = await JWT.jwtVerifyRefreshToken(refreshToken);
+      if (decodedData) {
+        const payload = {
+          // aud: decodedData.aud,
+          email: decodedData.email,
+          type: decodedData.type,
+        }
+        //console.log(decodedData._id)
+        const jwt_access_token = JWT.jwtSign(payload, decodedData.aud)
+        const refresh_token = JWT.jwtSignRefreshToken(payload, decodedData.aud)
+        res.json({
+          jwt_token: jwt_access_token,
+          refreshToken: refresh_token,
+        })
+      } else {
+        req.errorStatus = 403;
+        throw "Access denied";
+      }
+    } catch (error) {
+      req.errorStatus = 403
+      next(error)
     }
   }
 }

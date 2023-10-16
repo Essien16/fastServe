@@ -15,6 +15,7 @@ export const DevEnv: Environment = {
     pass: process.env.DEV_MAILTRAP_PASS,
   },
   jwt_secret_key: process.env.DEV_JWT_SECRET_KEY,
+  jwt_refresh_token_secret_key: process.env.DEV_JWT_REFRESH_TOKEN_SECRET_KEY,
   session_secret_key: process.env.DEV_SESSION_SECRET_KEY,
   flutterwave_secret_key: {
     public_key: process.env.DEV_FLUTTERWAVE_PUBLIC_KEY,

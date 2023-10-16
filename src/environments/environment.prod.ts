@@ -6,6 +6,7 @@ Utils.dotenvConfig();
 export const ProdEnv: Environment = {
   db_url: process.env.PROD_MONGODB_URI,
   jwt_secret_key: process.env.PROD_JWT_SECRET_KEY,
+  jwt_refresh_token_secret_key: process.env.PROD_JWT_REFRESH_TOKEN_SECRET_KEY,
   session_secret_key: process.env.PROD_SESSION_SECRET_KEY,
   cloudinary_auth: {
     cloud_name: process.env.PROD_CLOUDINARY_NAME,

@@ -44,6 +44,12 @@ class UserRouter {
     }
     postRoutes() {
         this.router.post("/signup", UserValidators.signup(), GlobalMiddleWare.checkError, UserController.signup);
+        this.router.post(
+          "/refresh/token",
+          UserValidators.refreshToken(),
+          GlobalMiddleWare.checkError,
+          UserController.getRefreshToken
+        )
     }
     patchRoutes() {
         this.router.patch("/reset/password", UserValidators.resetPassword(), GlobalMiddleWare.checkError, UserController.resetPassword);

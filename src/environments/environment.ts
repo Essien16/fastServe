@@ -4,6 +4,7 @@ import { ProdEnv } from "./environment.prod";
 export interface Environment {
   db_url: string
   jwt_secret_key: string
+  jwt_refresh_token_secret_key: string
   session_secret_key: string
   //NB: the ? is used so that if we want to use either send grid or gmail
   sendgrid_api?: {
