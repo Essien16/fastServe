@@ -22,4 +22,10 @@ export const DevEnv: Environment = {
     secret_key: process.env.DEV_FLUTTERWAVE_SECRET_KEY,
     encryption_key: process.env.DEV_FLUTTERWAVE_ENCRYPTION_KEY,
   },
+  redis: {
+    username: process.env.LOCAL_REDIS_USERNAME,
+    password: process.env.LOCAL_REDIS_PASSWORD,
+    host: process.env.LOCAL_REDIS_HOST,
+    port: parseInt(process.env.LOCAL_REDIS_PORT),
+  },
 }

@@ -220,11 +220,11 @@ export class UserController {
         { phone: phone, updated_at: new Date() },
         { new: true }
       );
-      res.send(userData)
+      res.send(userData);
     } catch (error) {
-      next(error)
-    }
-  }
+      next(error);
+    };
+  };
 
   static async updateUserProfile(req, res, next) {
     const user = req.user;
@@ -272,10 +272,10 @@ export class UserController {
       });
     } catch (error) {
       next(error);
-    }
-  }
+    };
+  };
 
-  static async getRefreshToken(req, res, next) {
+  static async getNewToken(req, res, next) {
     const refreshToken = req.body.refreshToken;
     try {
       const decodedData = await JWT.jwtVerifyRefreshToken(refreshToken);
@@ -300,5 +300,5 @@ export class UserController {
       req.errorStatus = 403
       next(error)
     }
-  }
+  };
 }

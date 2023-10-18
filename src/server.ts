@@ -16,6 +16,7 @@ import OrderRouter from "./routers/OrderRouter";
 import CartRouter from "./routers/CartRouter";
 import PaymentRouter from "./routers/PaymentRouter";
 import { Utils } from "./utils/Utils";
+import { Redis } from "./utils/Redis";
 
 
 export class Server {
@@ -33,6 +34,7 @@ export class Server {
   setConfigs() {
     this.dotenvConfig();
     this.connectMongoDb();
+    this.connectRedis();
     this.allowCors();
     this.configureBodyParser();
     this.configureSessions();
@@ -50,6 +52,11 @@ export class Server {
       })
       .catch((error) => console.log(error))
   }
+
+  connectRedis() {
+    Redis.connectToRedis();
+  }
+
   configureBodyParser() {
     this.app.use(bodyParser.urlencoded({ extended: true }))
     this.app.use(bodyParser.json())

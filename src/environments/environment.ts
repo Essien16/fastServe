@@ -1,3 +1,4 @@
+import { StringMappingType } from "typescript";
 import { DevEnv } from "./environment.dev";
 import { ProdEnv } from "./environment.prod";
 
@@ -24,6 +25,12 @@ export interface Environment {
     public_key: string
     secret_key: string
     encryption_key: string
+  }
+  redis?: {
+    username: string
+    password: string
+    host: string
+    port: number
   }
 }
 

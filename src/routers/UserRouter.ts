@@ -48,7 +48,7 @@ class UserRouter {
           "/refresh/token",
           UserValidators.refreshToken(),
           GlobalMiddleWare.checkError,
-          UserController.getRefreshToken
+          UserController.getNewToken
         )
     }
     patchRoutes() {
