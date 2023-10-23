@@ -44,7 +44,7 @@ export class UserController {
         type: user.type
       };
       const jwt_access_token = JWT.jwtSign(payload, user._id);
-      const refresh_token = JWT.jwtSignRefreshToken(payload, user._id)
+      const refresh_token = await JWT.jwtSignRefreshToken(payload, user._id)
       res.json({
         jwt_token: jwt_access_token,
         refreshToken: refresh_token,
@@ -146,7 +146,7 @@ export class UserController {
       }
       // console.log(user._id)
       const jwt_access_token = JWT.jwtSign(payload, user._id);
-      const refresh_token = JWT.jwtSignRefreshToken(payload, user._id)
+      const refresh_token = await JWT.jwtSignRefreshToken(payload, user._id)
       const user_data = {
         email: user.email,
         email_verified: user.email,
@@ -324,7 +324,7 @@ export class UserController {
         type: updatedUser.type,
       };
       const access_token = JWT.jwtSign(payload, user.aud);
-      const refresh_token = JWT.jwtSignRefreshToken(payload, user.aud)
+      const refresh_token = await JWT.jwtSignRefreshToken(payload, user.aud)
       //console.log(req.session)
       res.json({
         token: access_token,
@@ -354,7 +354,7 @@ export class UserController {
         }
         //console.log(decodedData._id)
         const jwt_access_token = JWT.jwtSign(payload, decodedData.aud)
-        const refresh_token = JWT.jwtSignRefreshToken(payload, decodedData.aud)
+        const refresh_token = await JWT.jwtSignRefreshToken(payload, decodedData.aud)
         res.json({
           jwt_token: jwt_access_token,
           refreshToken: refresh_token,

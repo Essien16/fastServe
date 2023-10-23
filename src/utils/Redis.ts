@@ -24,21 +24,38 @@ export class Redis {
     }
 
     static async setValue(key, value, expires_at?) {
-        let options: any = {};
-        if (expires_at) {
-            options = {
-                EX: expires_at
-            };
+        try {
+            let options: any = {};
+            if (expires_at) {
+                options = {
+                    EX: expires_at
+                };
+            }
+            await client.set(key, value, options);
+            return;
+        } catch(error) {
+            console.log(error);
+            throw "Redis server not connected."
         }
-        await client.set(key, value, options);
     }
 
     static async getValue(key) {
-        const value = await client.get(key);
-        return value;
+        try {
+            const value = await client.get(key);
+            return value;
+        } catch(error) {
+            console.log(error);
+            throw "Session expired. Please Login."
+        }
     }
 
     static async delKey(key: string) {
-        await client.del(key)
+        
+        try {
+          await client.del(key)
+        } catch (error) {
+          console.log(error)
+          throw "Redis server not connected."
+        }
     }
 }
