@@ -27,7 +27,16 @@ export class UserController {
         name,
         type,
       };
-      let user = await new User(data).save();
+      const user = await new User(data).save();
+      const user_data = {
+        email: user.email,
+        email_verified: user.email,
+        phone: user.phone,
+        name: user.name,
+        type: user.type,
+        created_at: user.created_at,
+        updated_at: user.updated_at
+      }
       const payload = {
 		    // _id: user._id,
         // aud: user._id,
@@ -39,7 +48,7 @@ export class UserController {
       res.json({
         jwt_token: jwt_access_token,
         refreshToken: refresh_token,
-        user: user,
+        user: user_data,
       });
       //send an email to the user to verify their email
       await NodeMailer.sendMail({
@@ -69,8 +78,17 @@ export class UserController {
         },
         {
           new: true,
+          projection: {
+            verification_token_for_email: 0,
+            verification_token_time: 0,
+            password: 0,
+            reset_password_token: 0,
+            reset_password_token_time: 0,
+            __v: 0,
+            _id: 0,
+          },
         }
-      );
+      )
       if (user) {
         res.send(user);
       } else {
@@ -129,10 +147,19 @@ export class UserController {
       // console.log(user._id)
       const jwt_access_token = JWT.jwtSign(payload, user._id);
       const refresh_token = JWT.jwtSignRefreshToken(payload, user._id)
+      const user_data = {
+        email: user.email,
+        email_verified: user.email,
+        phone: user.phone,
+        name: user.name,
+        type: user.type,
+        created_at: user.created_at,
+        updated_at: user.updated_at,
+      }
       res.json({
         jwt_token: jwt_access_token,
         refreshToken: refresh_token,
-        user: user,
+        user: user_data,
       });
     } catch (error) {
       next(error);
@@ -178,15 +205,24 @@ export class UserController {
     try {
       const encryptedPassword = await Utils.encryptPassword(new_password);
       const updatedUser = await User.findByIdAndUpdate(
-			user._id,
+        user._id,
         {
           updated_at: new Date(),
           password: encryptedPassword,
         },
         {
           new: true,
+          projection: {
+            verification_token_for_email: 0,
+            verification_token_time: 0,
+            password: 0,
+            reset_password_token: 0,
+            reset_password_token_time: 0,
+            __v: 0,
+            _id: 0,
+          },
         }
-      );
+      )
       if (updatedUser) {
         res.send(updatedUser);
       } else {
@@ -202,7 +238,16 @@ export class UserController {
     try {
       const profile = await User.findById(user.aud);
       if (profile) {
-        res.send(profile);
+        const user_data = {
+          email: profile.email,
+          email_verified: profile.email,
+          phone: profile.phone,
+          name: profile.name,
+          type: profile.type,
+          created_at: profile.created_at,
+          updated_at: profile.updated_at,
+        }
+        res.send(user_data);
       } else {
         res.status(404).send("User does not exist. Please try again with a valid user.");
       }
@@ -218,8 +263,19 @@ export class UserController {
       const userData = await User.findByIdAndUpdate(
         user.aud,
         { phone: phone, updated_at: new Date() },
-        { new: true }
-      );
+        {
+          new: true,
+          projection: {
+            verification_token_for_email: 0,
+            verification_token_time: 0,
+            password: 0,
+            reset_password_token: 0,
+            reset_password_token_time: 0,
+            __v: 0,
+            _id: 0,
+          },
+        }
+      )
       res.send(userData);
     } catch (error) {
       next(error);
@@ -249,8 +305,19 @@ export class UserController {
           verification_token_time: Date.now() + new Utils().TOKEN_TIME,
           updated_at: new Date(),
         },
-        { new: true }
-      );
+        {
+          new: true,
+          projection: {
+            verification_token_for_email: 0,
+            verification_token_time: 0,
+            password: 0,
+            reset_password_token: 0,
+            reset_password_token_time: 0,
+            __v: 0,
+            _id: 0,
+          },
+        }
+      )
       const payload = {
         // aud: user.aud,
         email: updatedUser.email,
