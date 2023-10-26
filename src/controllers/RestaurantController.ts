@@ -76,6 +76,16 @@ export class RestaurantController {
     let nextPage = currentPage + 1
     try {
       const restaurant_count = await Restaurant.countDocuments({ status: "active" })
+      if (!restaurant_count) {
+        res.json({
+          restaurants: [],
+          perPage,
+          currentPage,
+          previousPage: null,
+          nextPage: null,
+          totalPage: 0
+        })
+      }
       const totalPage = Math.ceil(restaurant_count / perPage)
       if (totalPage == 0 || totalPage == currentPage) {
         nextPage = null
