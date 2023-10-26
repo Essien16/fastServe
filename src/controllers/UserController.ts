@@ -2,6 +2,7 @@ import User from "../models/User";
 import { NodeMailer } from "../utils/NodeMailer";
 import { Utils } from "../utils/Utils";
 import { JWT } from "../utils/Jwt";
+import { Redis } from "../utils/Redis";
 
 
 export class UserController {
@@ -13,11 +14,10 @@ export class UserController {
     const email = req.body.email;
     const password = req.body.password;
     const type = req.body.type;
-    const verification_token_for_email =
-      Utils.generateEmailVerificationToken(4);
+    const verification_token_for_email = Utils.generateEmailVerificationToken(4);
 
     try {
-      const hash = await Utils.encryptPassword(password);
+      const hash = await Utils.encryptPassword(password)
       const data = {
         email,
         verification_token_for_email: verification_token_for_email,
@@ -26,8 +26,8 @@ export class UserController {
         phone,
         name,
         type,
-      };
-      const user = await new User(data).save();
+      }
+      const user = await new User(data).save()
       const user_data = {
         email: user.email,
         email_verified: user.email,
@@ -35,35 +35,35 @@ export class UserController {
         name: user.name,
         type: user.type,
         created_at: user.created_at,
-        updated_at: user.updated_at
+        updated_at: user.updated_at,
       }
       const payload = {
-		    // _id: user._id,
+        // _id: user._id,
         // aud: user._id,
         email: user.email,
-        type: user.type
-      };
-      const jwt_access_token = JWT.jwtSign(payload, user._id);
+        type: user.type,
+      }
+      const jwt_access_token = JWT.jwtSign(payload, user._id)
       const refresh_token = await JWT.jwtSignRefreshToken(payload, user._id)
       res.json({
         jwt_token: jwt_access_token,
         refreshToken: refresh_token,
         user: user_data,
-      });
+      })
       //send an email to the user to verify their email
       await NodeMailer.sendMail({
         to: [user.email],
         subject: "Email Verification",
         html: `<h1>Your otp is ${verification_token_for_email}</h1>`,
-      });
+      })
     } catch (error) {
-    	  next(error);
+      next(error)
     }
   }
 
   static async verifyEmailOtp(req, res, next) {
-    const verification_token_for_email = req.body.verification_token_for_email;
-    const email = req.user.email;
+    const verification_token_for_email = req.body.verification_token_for_email
+    const email = req.user.email
     try {
       const user = await User.findOneAndUpdate(
         {
@@ -90,19 +90,19 @@ export class UserController {
         }
       )
       if (user) {
-        res.send(user);
+        res.send(user)
       } else {
-        throw new Error("Invalid OTP. Please generate a new token.");
+        throw new Error("Invalid OTP. Please generate a new token.")
       }
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   static async resendVerificationEmail(req, res, next) {
     // res.send(req.user)
-    const email = req.user.email;
-    const verification_token_for_email = Utils.generateEmailVerificationToken();
+    const email = req.user.email
+    const verification_token_for_email = Utils.generateEmailVerificationToken()
     try {
       const user: any = await User.findOneAndUpdate(
         {
@@ -113,39 +113,39 @@ export class UserController {
           verification_token_for_email: verification_token_for_email,
           verification_token_time: Date.now() + new Utils().TOKEN_TIME,
         }
-      );
+      )
       if (user) {
-        res.json({ success: true });
+        res.json({ success: true })
         await NodeMailer.sendMail({
           to: [user.email],
           subject: "Re-send Email Verification",
           html: `<h1>Your otp is ${verification_token_for_email}</h1>`,
-        });
+        })
       } else {
-        throw new Error("User does not exist");
+        throw new Error("User does not exist")
       }
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   static async login(req, res, next) {
-    const user = req.user;
-    const password = req.query.password;
-    const hashed_password = user.password;
+    const user = req.user
+    const password = req.query.password
+    const hashed_password = user.password
     const data = {
       password,
       hashed_password,
-    };
+    }
     try {
-      await Utils.comparePassword(data);
+      await Utils.comparePassword(data)
       const payload = {
         // aud: user._id,
         email: user.email,
         type: user.type,
       }
       // console.log(user._id)
-      const jwt_access_token = JWT.jwtSign(payload, user._id);
+      const jwt_access_token = JWT.jwtSign(payload, user._id)
       const refresh_token = await JWT.jwtSignRefreshToken(payload, user._id)
       const user_data = {
         email: user.email,
@@ -160,15 +160,15 @@ export class UserController {
         jwt_token: jwt_access_token,
         refreshToken: refresh_token,
         user: user_data,
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   static async sendResetPasswordOtp(req, res, next) {
-    const email = req.query.email;
-    const reset_password_token = Utils.generateEmailVerificationToken();
+    const email = req.query.email
+    const reset_password_token = Utils.generateEmailVerificationToken()
     try {
       const user: any = await User.findOneAndUpdate(
         {
@@ -179,31 +179,31 @@ export class UserController {
           reset_password_token: reset_password_token,
           reset_password_token_time: Date.now() + new Utils().TOKEN_TIME,
         }
-      );
+      )
       if (user) {
-        res.json({ success: true });
+        res.json({ success: true })
         await NodeMailer.sendMail({
           to: [user.email],
           subject: "Reset password- Email verification OTP",
           html: `<h1>Your otp is ${reset_password_token}</h1>`,
-        });
+        })
       } else {
-        throw new Error("User does not exist");
+        throw new Error("User does not exist")
       }
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   static verifyResetPasswordToken(req, res, next) {
-    res.json({ success: true});
-  };
+    res.json({ success: true })
+  }
 
   static async resetPassword(req, res, next) {
-    const user = req.user;
-    const new_password = req.body.new_password;
+    const user = req.user
+    const new_password = req.body.new_password
     try {
-      const encryptedPassword = await Utils.encryptPassword(new_password);
+      const encryptedPassword = await Utils.encryptPassword(new_password)
       const updatedUser = await User.findByIdAndUpdate(
         user._id,
         {
@@ -224,19 +224,19 @@ export class UserController {
         }
       )
       if (updatedUser) {
-        res.send(updatedUser);
+        res.send(updatedUser)
       } else {
-        throw new Error("User does not exist");
+        throw new Error("User does not exist")
       }
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   static async profile(req, res, next) {
-    const user = req.user;
+    const user = req.user
     try {
-      const profile = await User.findById(user.aud);
+      const profile = await User.findById(user.aud)
       if (profile) {
         const user_data = {
           email: profile.email,
@@ -247,18 +247,20 @@ export class UserController {
           created_at: profile.created_at,
           updated_at: profile.updated_at,
         }
-        res.send(user_data);
+        res.send(user_data)
       } else {
-        res.status(404).send("User does not exist. Please try again with a valid user.");
+        res
+          .status(404)
+          .send("User does not exist. Please try again with a valid user.")
       }
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   static async updatePhoneNumber(req, res, next) {
     const user = req.user //this is from the global middleware
-    const phone = req.body.phone;
+    const phone = req.body.phone
     try {
       const userData = await User.findByIdAndUpdate(
         user.aud,
@@ -276,25 +278,25 @@ export class UserController {
           },
         }
       )
-      res.send(userData);
+      res.send(userData)
     } catch (error) {
-      next(error);
-    };
-  };
+      next(error)
+    }
+  }
 
   static async updateUserProfile(req, res, next) {
-    const user = req.user;
-    const phone = req.body.phone;
-    const new_email = req.body.email;
-    const plain_password = req.body.password;
-    const verification_token_for_email = Utils.generateEmailVerificationToken(4);
+    const user = req.user
+    const phone = req.body.phone
+    const new_email = req.body.email
+    const plain_password = req.body.password
+    const verification_token_for_email = Utils.generateEmailVerificationToken(4)
     try {
-      const userData = await User.findById(user.aud);
-      if (!userData) throw new Error("User doesn't exist");
+      const userData = await User.findById(user.aud)
+      if (!userData) throw new Error("User doesn't exist")
       await Utils.comparePassword({
         password: plain_password,
         hashed_password: userData.password,
-      });
+      })
       const updatedUser = await User.findByIdAndUpdate(
         user.aud,
         {
@@ -322,30 +324,30 @@ export class UserController {
         // aud: user.aud,
         email: updatedUser.email,
         type: updatedUser.type,
-      };
-      const access_token = JWT.jwtSign(payload, user.aud);
+      }
+      const access_token = JWT.jwtSign(payload, user.aud)
       const refresh_token = await JWT.jwtSignRefreshToken(payload, user.aud)
       //console.log(req.session)
       res.json({
         token: access_token,
         refreshToken: refresh_token,
         user: updatedUser,
-      });
+      })
       // send email to user for updated email verification
       await NodeMailer.sendMail({
         to: [updatedUser.email],
         subject: "Updated Email Verification",
         html: `<h1>Your Otp is ${verification_token_for_email}</h1>`,
-      });
+      })
     } catch (error) {
-      next(error);
-    };
-  };
+      next(error)
+    }
+  }
 
   static async getNewToken(req, res, next) {
-    const refreshToken = req.body.refreshToken;
+    // const refreshToken = req.body.refreshToken;
+    const decodedData = req.user;
     try {
-      const decodedData = await JWT.jwtVerifyRefreshToken(refreshToken);
       if (decodedData) {
         const payload = {
           // aud: decodedData.aud,
@@ -354,18 +356,37 @@ export class UserController {
         }
         //console.log(decodedData._id)
         const jwt_access_token = JWT.jwtSign(payload, decodedData.aud)
-        const refresh_token = await JWT.jwtSignRefreshToken(payload, decodedData.aud)
+        const refresh_token = await JWT.jwtSignRefreshToken(
+          payload,
+          decodedData.aud
+        )
         res.json({
           jwt_token: jwt_access_token,
           refreshToken: refresh_token,
         })
       } else {
-        req.errorStatus = 403;
-        throw "Access denied";
+        req.errorStatus = 403
+        throw "Access denied"
       }
     } catch (error) {
       req.errorStatus = 403
       next(error)
     }
-  };
+  }
+
+  static async logout(req, res, next) {
+    const decodedData = req.user;
+    try {
+      if (decodedData) {
+        await Redis.deleteKey(decodedData.aud);
+        res.json({sucess: true})
+      } else {
+        req.errorStatus = 403
+        throw "Access denied"
+      }
+    } catch (error) {
+      req.errorStatus = 403
+      next(error)
+    }
+  }
 }

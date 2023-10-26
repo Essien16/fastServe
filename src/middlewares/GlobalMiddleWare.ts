@@ -29,6 +29,22 @@ export class GlobalMiddleWare {
     }
   }
 
+  static async decodeRefreshToken (req, res, next) {
+    const refreshToken = req.body.refreshToken;
+    try {
+      if (!refreshToken) {
+        req.error.status = 403;
+        next(new Error("Access denied. Your session has expired please login."))
+      }
+      const decoded = await JWT.jwtVerifyRefreshToken(refreshToken);
+      req.user = decoded;
+      next();
+    } catch(error) {
+      req.error.status = 403;
+      next(new Error("Access denied. Your session has expired please login."))
+    }
+  }
+
   static adminRole(req, res, next) {
     const user = req.user;
     if (user.type !== "admin") {

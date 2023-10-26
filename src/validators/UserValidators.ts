@@ -36,10 +36,10 @@ export class UserValidators {
   static verifyEmailOtp() {
     return [
       body(
-        'verification_token_for_email',
-        'Email verification token is required',
+        "verification_token_for_email",
+        "Email verification token is required"
       ).isNumeric(),
-    ];
+    ]
   }
 
   // static verifyUserForResendingEmail() {
@@ -48,142 +48,136 @@ export class UserValidators {
 
   static login() {
     return [
-      query('email', 'Email is required')
+      query("email", "Email is required")
         .isEmail()
-        .custom((email, { req }) => User.findOne({
-          email,
-        })
-          .then((user) => {
-            if (user) {
-              req.user = user;
-              return true;
-            }
-            throw 'Invalid email or password';
+        .custom((email, { req }) =>
+          User.findOne({
+            email,
           })
-          .catch((e) => {
-            throw new Error(e);
-          })),
-      query('password', 'Password is required').isAlphanumeric(),
-    ];
+            .then((user) => {
+              if (user) {
+                req.user = user
+                return true
+              }
+              throw "Invalid email or password"
+            })
+            .catch((e) => {
+              throw new Error(e)
+            })
+        ),
+      query("password", "Password is required").isAlphanumeric(),
+    ]
   }
 
   static checkResetPasswordEmail() {
     return [
-      query('email', 'Email is required')
+      query("email", "Email is required")
         .isEmail()
-        .custom((email, { req }) => User.findOne({
-          email,
-          // NB: if you want to allow multiple roles to have the same email, we have to pass the types. For this implementation, multiple roles cannot have the same email.
-        })
-          .then((user) => {
-            if (user) {
-              return true;
-            }
-            throw 'No user with the given email found';
+        .custom((email, { req }) =>
+          User.findOne({
+            email,
+            // NB: if you want to allow multiple roles to have the same email, we have to pass the types. For this implementation, multiple roles cannot have the same email.
           })
-          .catch((e) => {
-            throw new Error(e);
-          })),
-    ];
+            .then((user) => {
+              if (user) {
+                return true
+              }
+              throw "No user with the given email found"
+            })
+            .catch((e) => {
+              throw new Error(e)
+            })
+        ),
+    ]
   }
 
   static verifyResetPasswordToken() {
     return [
-      query('email', 'Email is required').isEmail(),
-      query('reset_password_token', 'Reset Password token is required')
+      query("email", "Email is required").isEmail(),
+      query("reset_password_token", "Reset Password token is required")
         .isNumeric()
-        .custom((reset_password_token, { req }) => User.findOne({
-          email: req.query.email,
-          reset_password_token,
-          reset_password_token_time: { $gt: Date.now() },
-          // NB: if you want to allow multiple roles to have the same email, we have to pass the types. For this implementation, multiple roles cannot have the same email.
-        })
-          .then((user) => {
-            if (user) {
-              return true;
-            }
-            throw 'Invalid OTP. Please generate a new OTP';
+        .custom((reset_password_token, { req }) =>
+          User.findOne({
+            email: req.query.email,
+            reset_password_token,
+            reset_password_token_time: { $gt: Date.now() },
+            // NB: if you want to allow multiple roles to have the same email, we have to pass the types. For this implementation, multiple roles cannot have the same email.
           })
-          .catch((e) => {
-            throw new Error(e);
-          })),
-    ];
+            .then((user) => {
+              if (user) {
+                return true
+              }
+              throw "Invalid OTP. Please generate a new OTP"
+            })
+            .catch((e) => {
+              throw new Error(e)
+            })
+        ),
+    ]
   }
 
   static resetPassword() {
     return [
-      body('email', 'Email is required')
+      body("email", "Email is required")
         .isEmail()
-        .custom((email, { req }) => User.findOne({
-          email,
-        })
-          .then((user) => {
-            if (user) {
-              req.user = user;
-              return true;
-            }
-            throw 'No user with the given email found';
+        .custom((email, { req }) =>
+          User.findOne({
+            email,
           })
-          .catch((e) => {
-            throw new Error(e);
-          })),
-      body('new_password', 'Kindly enter your new password').isAlphanumeric(),
-      body('otp', 'Reset Password token is required')
+            .then((user) => {
+              if (user) {
+                req.user = user
+                return true
+              }
+              throw "No user with the given email found"
+            })
+            .catch((e) => {
+              throw new Error(e)
+            })
+        ),
+      body("new_password", "Kindly enter your new password").isAlphanumeric(),
+      body("otp", "Reset Password token is required")
         .isNumeric()
         .custom((reset_password_token, { req }) => {
           if (req.user.reset_password_token === reset_password_token) {
-            return true;
+            return true
           }
-          req.errorStatus = 401;
-          throw 'Invalid token. Please try again';
+          req.errorStatus = 401
+          throw "Invalid token. Please try again"
         }),
-    ];
+    ]
   }
 
   static verifyPhoneNumber() {
-    return [
-      body('phone', 'Phone number is required').isString(),
-    ];
+    return [body("phone", "Phone number is required").isString()]
   }
 
   static verifyUserProfile() {
     return [
-      body('phone', 'Phone number is required').isString(),
-      body('email', 'Email is required')
+      body("phone", "Phone number is required").isString(),
+      body("email", "Email is required")
         .isEmail()
         .custom((email, { req }) => {
-          if (req.user.email === email) throw 'Email already in use. Please provide the new emailto update your profile.';
+          if (req.user.email === email)
+            throw "Email already in use. Please provide the new emailto update your profile."
           return User.findOne({
             email,
           })
             .then((user) => {
               if (user) {
-                throw 'This email already belongs to a user. Please provide a unique email';
+                throw "This email already belongs to a user. Please provide a unique email"
               } else {
-                return true;
+                return true
               }
             })
             .catch((e) => {
-              throw new Error(e);
-            });
+              throw new Error(e)
+            })
         }),
-      body('password', 'Password is required').isAlphanumeric()
-      .isLength({min: 8, max: 20})
-      .withMessage('Password must be between 8-20 characters.')
-    ];
-  }
-
-  static refreshToken() {
-    return [
-      body("refreshToken", "Refresh Token is required").isString()
-      .custom((refreshToken, { req }) => {
-        if (refreshToken) {
-          return true;
-        } else {
-          req.errorStatus = 403;
-          throw "Access forbidden.";
-        }
-      })
+      body("password", "Password is required")
+        .isAlphanumeric()
+        .isLength({ min: 8, max: 20 })
+        .withMessage("Password must be between 8-20 characters."),
     ]
   }
 }
